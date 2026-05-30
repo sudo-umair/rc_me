@@ -4,7 +4,7 @@ Config = {}
 -- General
 -----------------------------------------------------------------------------
 
-Config.Debug        = true   -- print diagnostics to server & client (F8) consoles
+Config.Debug        = false  -- print diagnostics to server & client (F8) consoles
 Config.MaxLength    = 112    -- max characters allowed in a single line
 Config.Duration     = 8000   -- how long (ms) a bubble stays on screen
 Config.MaxDistance  = 20.0   -- how far (metres) nearby players can see the text
