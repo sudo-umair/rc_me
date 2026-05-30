@@ -27,22 +27,14 @@ local function jobAllowed(src, jobs)
     return false
 end
 
--- Send a message to every player within range of the sender (OneSync).
+-- Send the message out. We broadcast to all players and let each client filter
+-- by distance to the sender's ped (peds always stream client-side, so this is
+-- reliable and needs no server-side entity access / OneSync entity lookups).
 local function broadcastNearby(src, payload)
-    local senderPed = GetPlayerPed(src)
-    if senderPed == 0 then return end
-    local origin = GetEntityCoords(senderPed)
-
-    for _, pid in ipairs(GetPlayers()) do
-        local target = tonumber(pid)
-        local ped = GetPlayerPed(target)
-        if ped ~= 0 then
-            local dist = #(GetEntityCoords(ped) - origin)
-            if dist <= Config.MaxDistance then
-                TriggerClientEvent('rc_me:show', target, src, payload)
-            end
-        end
+    if Config.Debug then
+        print(('[rc_me] broadcasting %s from %s: %s'):format(payload.type, src, payload.text))
     end
+    TriggerClientEvent('rc_me:show', -1, src, payload)
 end
 
 -----------------------------------------------------------------------------

@@ -9,6 +9,7 @@ local order = {}         -- ordered list of active ids (oldest first)
 local idCounter = 0
 local threadRunning = false
 local lastHtml = ''
+local debugFrames = 0    -- when > 0, buildHtml prints diagnostics this many frames
 
 -----------------------------------------------------------------------------
 -- Helpers
@@ -16,6 +17,11 @@ local lastHtml = ''
 
 local function escapeHtml(s)
     return (s:gsub('[&<>]', { ['&'] = '&amp;', ['<'] = '&lt;', ['>'] = '&gt;' }))
+end
+
+-- Project a world position to normalised (0-1) screen coords.
+local function world3dToScreen2d(x, y, z)
+    return GetScreenCoordFromWorldCoord(x, y, z)
 end
 
 -- Drop the oldest bubble belonging to a sender (used to enforce stacking cap).
@@ -39,6 +45,8 @@ local function buildHtml()
     local myCoords = GetEntityCoords(PlayerPedId())
     local stackIndex = {}    -- [sender] = how many of their lines drawn so far
     local parts = {}
+    local dbg = debugFrames > 0
+    if dbg then debugFrames = debugFrames - 1 end
 
     for i = 1, #order do
         local id = order[i]
@@ -49,19 +57,26 @@ local function buildHtml()
                 order[i] = false   -- mark for compaction below
             else
                 local def = CMD[msg.type]
-                local ped = GetPlayerFromServerId(msg.sender)
-                if def and ped ~= -1 and ped ~= 0 then
-                    local pedPtr = GetPlayerPed(ped)
+                local plyIdx = GetPlayerFromServerId(msg.sender)   -- player index (can be 0!), or -1 if not present
+                local pedPtr = plyIdx ~= -1 and GetPlayerPed(plyIdx) or 0
+                if dbg then
+                    print(('[rc_me] render: sender=%s plyIdx=%s ped=%s'):format(msg.sender, plyIdx, pedPtr))
+                end
+                if def and pedPtr ~= 0 then
                     local sourceCoords = GetEntityCoords(pedPtr)
-                    if #(sourceCoords - myCoords) <= Config.MaxDistance then
+                    local dist = #(sourceCoords - myCoords)
+                    if dist <= Config.MaxDistance then
                         local idx = stackIndex[msg.sender] or 0
                         stackIndex[msg.sender] = idx + 1
 
-                        local onScreen, sx, sy = GetHudScreenPositionFromWorldPosition(
+                        local onScreen, sx, sy = world3dToScreen2d(
                             sourceCoords.x + Config.OffsetX,
                             sourceCoords.y + Config.OffsetY,
                             sourceCoords.z + Config.OffsetZ + (idx * Config.LineGap)
                         )
+                        if dbg then
+                            print(('[rc_me] render: dist=%.1f onScreen=%s sx=%s sy=%s'):format(dist, tostring(onScreen), tostring(sx), tostring(sy)))
+                        end
 
                         if onScreen then
                             local text = escapeHtml(msg.text)
@@ -103,6 +118,9 @@ local function startThread()
         while #order > 0 do
             local html = buildHtml()
             if html ~= lastHtml then
+                if Config.Debug then
+                    print(('[rc_me] SendNUIMessage html length=%d'):format(#html))
+                end
                 SendNUIMessage({ action = 'render', html = html })
                 lastHtml = html
             end
@@ -123,6 +141,11 @@ end
 -----------------------------------------------------------------------------
 
 RegisterNetEvent('rc_me:show', function(sender, payload)
+    if Config.Debug then
+        print(('[rc_me] received %s from %s: %s'):format(
+            type(payload) == 'table' and payload.type or '?', sender,
+            type(payload) == 'table' and payload.text or tostring(payload)))
+    end
     if type(payload) ~= 'table' or not CMD[payload.type] then return end
 
     -- enforce per-player stacking cap
@@ -145,5 +168,6 @@ RegisterNetEvent('rc_me:show', function(sender, payload)
     }
     order[#order + 1] = idCounter
 
+    if Config.Debug then debugFrames = 5 end
     startThread()
 end)
