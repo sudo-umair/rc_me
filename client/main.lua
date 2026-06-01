@@ -35,8 +35,14 @@ local function resolveOverlap(placed, sx, sy)
         for i = 1, #placed do
             local p = placed[i]
             if math.abs(sx - p.x) < Config.OverlapWidth and math.abs(sy - p.y) < Config.OverlapHeight then
-                sy = p.y - Config.OverlapHeight
-                moved = true
+                -- Only accept pushes that actually move us up. Due to floating-point
+                -- rounding, (p.y - OverlapHeight) can still register as overlapping p,
+                -- which would otherwise re-push to the same value forever (game freeze).
+                local pushed = p.y - Config.OverlapHeight
+                if pushed < sy then
+                    sy = pushed
+                    moved = true
+                end
             end
         end
     end
