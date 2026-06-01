@@ -46,9 +46,7 @@ html, body {
 
 /* per-type accent colour (must match Config.Commands accents) */
 .rp-me  { --accent: #e0a93b; }
-.rp-do  { --accent: #4d66f1; }
 .rp-try { --accent: #cb73e6; }
-.rp-med { --accent: #e3534f; }
 
 .rp-icon {
     flex: 0 0 auto;

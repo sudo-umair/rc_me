@@ -63,14 +63,6 @@ Config.Commands = {
         accent  = '#e0a93b',
     },
     {
-        type    = 'do',
-        command = 'do',
-        label   = 'DO',
-        help    = 'Describe the scene or your character\'s state',
-        icon    = 'eye',
-        accent  = '#4d66f1',
-    },
-    {
         type    = 'try',
         command = 'try',
         label   = 'TRY',
@@ -78,14 +70,5 @@ Config.Commands = {
         icon    = 'dice',
         accent  = '#cb73e6',
         isTry   = true,
-    },
-    {
-        type    = 'med',
-        command = 'med',
-        label   = 'MED',
-        help    = 'Describe a medical action (EMS only)',
-        icon    = 'hand-holding-medical',
-        accent  = '#e3534f',
-        jobs    = { 'ambulance' },   -- EMS only
     },
 }

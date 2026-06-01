@@ -1,6 +1,6 @@
 # rc_me
 
-Roleplay floating-text commands for **ESX** — `/me`, `/do`, `/try`, `/med` — rendered as
+Roleplay floating-text commands for **ESX** — `/me`, `/try` — rendered as
 clean glass NUI bubbles projected above the player in 3D world space.
 
 Built as an improved rewrite of the classic `3dme` script.
@@ -14,7 +14,7 @@ Built as an improved rewrite of the classic `3dme` script.
 - **Server-side OneSync proximity** — only players within `Config.MaxDistance` receive the
   message, instead of broadcasting to everyone.
 - **Server-authoritative `/try`** — success/fail is rolled on the server (`Config.TrySuccessChance`).
-- **Job-gated commands** — `/med` is restricted to EMS by default (`jobs` field per command).
+- **Job-gated commands** — any command can be restricted to specific jobs (`jobs` field per command).
 - **Efficient rendering** — a single client thread runs only while bubbles are active and pushes
   NUI updates only when the markup actually changes.
 - Anti-spam cooldown and max-length clamping.
@@ -24,9 +24,7 @@ Built as an improved rewrite of the classic `3dme` script.
 | Command       | Example                       | Notes                                  |
 |---------------|-------------------------------|----------------------------------------|
 | `/me <text>`  | `/me opens the door slowly`   | Action you perform                     |
-| `/do <text>`  | `/do the door is locked`      | Scene / environment fact               |
 | `/try <text>` | `/try to pick the lock`       | Appends a server-rolled succeeds/fails |
-| `/med <text>` | `/med applies a bandage`      | EMS job only by default                |
 
 ## Dependencies
 
