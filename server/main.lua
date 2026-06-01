@@ -15,6 +15,19 @@ local function notify(src, msg, ntype)
     })
 end
 
+-- Truncate a string to maxChars characters without splitting a UTF-8
+-- codepoint (plain :sub() counts bytes and can cut a multibyte char in half).
+local function truncate(s, maxChars)
+    local len = utf8.len(s)
+    if not len then
+        return s:sub(1, maxChars)   -- invalid UTF-8; fall back to byte truncation
+    end
+    if len <= maxChars then
+        return s
+    end
+    return s:sub(1, utf8.offset(s, maxChars + 1) - 1)
+end
+
 -- True if the player is allowed to use a command with the given job whitelist.
 local function jobAllowed(src, jobs)
     if not jobs or #jobs == 0 then return true end
@@ -63,7 +76,7 @@ local function handleCommand(def, src, args)
         notify(src, 'Usage: /' .. def.command .. ' <text>')
         return
     end
-    text = text:sub(1, Config.MaxLength)
+    text = truncate(text, Config.MaxLength)
 
     -- /try outcome (server-authoritative)
     local success = nil
