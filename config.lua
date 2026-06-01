@@ -50,7 +50,7 @@ Config.Commands = {
         command = 'me',
         label   = 'ME',
         icon    = 'comment-dots',
-        accent  = '#cb73e6',
+        accent  = '#e0a93b',
     },
     {
         type    = 'do',
@@ -64,7 +64,7 @@ Config.Commands = {
         command = 'try',
         label   = 'TRY',
         icon    = 'dice',
-        accent  = '#e0a93b',
+        accent  = '#cb73e6',
         isTry   = true,
     },
     {
