@@ -42,13 +42,12 @@ end
 -----------------------------------------------------------------------------
 
 local function handleCommand(def, src, args)
-    -- cooldown
-    if Config.Cooldown > 0 then
-        local now = GetGameTimer()
-        if lastUsed[src] and (now - lastUsed[src]) < Config.Cooldown then
+    -- cooldown (checked here, but only consumed once the command succeeds)
+    if Config.Cooldown > 0 and lastUsed[src] then
+        if (GetGameTimer() - lastUsed[src]) < Config.Cooldown then
+            notify(src, 'Please wait a moment before using another RP command')
             return
         end
-        lastUsed[src] = now
     end
 
     -- job restriction
@@ -70,6 +69,11 @@ local function handleCommand(def, src, args)
     local success = nil
     if def.isTry then
         success = math.random(1, 100) <= Config.TrySuccessChance
+    end
+
+    -- command succeeded — consume the cooldown
+    if Config.Cooldown > 0 then
+        lastUsed[src] = GetGameTimer()
     end
 
     broadcastNearby(src, {
