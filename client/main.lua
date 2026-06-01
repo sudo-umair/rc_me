@@ -160,6 +160,25 @@ local function startThread()
 end
 
 -----------------------------------------------------------------------------
+-- Chat suggestions
+-----------------------------------------------------------------------------
+
+CreateThread(function()
+    for _, def in ipairs(Config.Commands) do
+        TriggerEvent('chat:addSuggestion', '/' .. def.command, def.help or def.label, {
+            { name = 'text', help = 'what happens' },
+        })
+    end
+end)
+
+AddEventHandler('onResourceStop', function(resource)
+    if resource ~= GetCurrentResourceName() then return end
+    for _, def in ipairs(Config.Commands) do
+        TriggerEvent('chat:removeSuggestion', '/' .. def.command)
+    end
+end)
+
+-----------------------------------------------------------------------------
 -- Network
 -----------------------------------------------------------------------------
 

@@ -46,6 +46,7 @@ Config.TryFailText      = 'fails'
 -- type       : internal id, also used as the NUI css modifier (rp-<type>)
 -- command    : the chat command players type (without the slash)
 -- label      : short tag shown in the bubble
+-- help       : description shown in the chat autocomplete suggestion
 -- icon       : Font Awesome 5 icon name (without the "fa-" prefix)
 -- accent     : accent colour (border + label + icon)
 -- isTry      : if true, appends a server-rolled success/fail outcome
@@ -57,6 +58,7 @@ Config.Commands = {
         type    = 'me',
         command = 'me',
         label   = 'ME',
+        help    = 'Describe an action your character performs',
         icon    = 'comment-dots',
         accent  = '#e0a93b',
     },
@@ -64,6 +66,7 @@ Config.Commands = {
         type    = 'do',
         command = 'do',
         label   = 'DO',
+        help    = 'Describe the scene or your character\'s state',
         icon    = 'eye',
         accent  = '#4d66f1',
     },
@@ -71,6 +74,7 @@ Config.Commands = {
         type    = 'try',
         command = 'try',
         label   = 'TRY',
+        help    = 'Attempt an action — the server rolls success or failure',
         icon    = 'dice',
         accent  = '#cb73e6',
         isTry   = true,
@@ -79,6 +83,7 @@ Config.Commands = {
         type    = 'med',
         command = 'med',
         label   = 'MED',
+        help    = 'Describe a medical action (EMS only)',
         icon    = 'hand-holding-medical',
         accent  = '#e3534f',
         jobs    = { 'ambulance' },   -- EMS only
