@@ -24,6 +24,26 @@ local function world3dToScreen2d(x, y, z)
     return GetScreenCoordFromWorldCoord(x, y, z)
 end
 
+-- Push a bubble up (in screen space) until it no longer overlaps any bubble
+-- placed earlier this frame. Older bubbles keep their spot; newer ones climb.
+-- Needed when several senders share nearly the same world position, e.g.
+-- multiple occupants of one vehicle.
+local function resolveOverlap(placed, sx, sy)
+    local moved = true
+    while moved do
+        moved = false
+        for i = 1, #placed do
+            local p = placed[i]
+            if math.abs(sx - p.x) < Config.OverlapWidth and math.abs(sy - p.y) < Config.OverlapHeight then
+                sy = p.y - Config.OverlapHeight
+                moved = true
+            end
+        end
+    end
+    placed[#placed + 1] = { x = sx, y = sy }
+    return sy
+end
+
 -- Drop the oldest bubble belonging to a sender (used to enforce stacking cap).
 local function dropOldestFor(sender)
     for i = 1, #order do
@@ -44,6 +64,7 @@ local function buildHtml()
     local now = GetGameTimer()
     local myCoords = GetEntityCoords(PlayerPedId())
     local stackIndex = {}    -- [sender] = how many of their lines drawn so far
+    local placed = {}        -- screen positions used so far this frame (overlap resolution)
     local parts = {}
     local dbg = debugFrames > 0
     if dbg then debugFrames = debugFrames - 1 end
@@ -79,6 +100,8 @@ local function buildHtml()
                         end
 
                         if onScreen then
+                            sy = resolveOverlap(placed, sx, sy)
+
                             local text = escapeHtml(msg.text)
                             if msg.success ~= nil then
                                 local outcome = msg.success and Config.TrySuccessText or Config.TryFailText

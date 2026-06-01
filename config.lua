@@ -18,6 +18,14 @@ Config.MaxLinesPerPlayer = 3     -- max simultaneous bubbles above one player
 Config.LineGap           = 0.28  -- vertical world-space gap between stacked lines
 
 -----------------------------------------------------------------------------
+-- Overlap resolution — different players whose bubbles would draw on top of
+-- each other (e.g. several people sitting in the same vehicle)
+-----------------------------------------------------------------------------
+
+Config.OverlapWidth  = 0.17   -- horizontal screen distance (0-1) under which two bubbles count as overlapping
+Config.OverlapHeight = 0.045  -- vertical screen size (0-1) of a bubble; overlapping bubbles are pushed up by this
+
+-----------------------------------------------------------------------------
 -- World offset of the bubble relative to the player's position
 -----------------------------------------------------------------------------
 
