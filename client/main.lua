@@ -118,9 +118,9 @@ local function buildHtml()
 
                             parts[#parts + 1] = table.concat({
                                 '<div class="rp-anchor" style="left:', sx * 100, '%;top:', sy * 100, '%;">',
-                                '<div class="rp-bubble rp-', msg.type, '">',
+                                '<div class="rp-row rp-', msg.type, '">',
                                 head,
-                                '<div class="rp-body">',
+                                '<div class="rp-bubble">',
                                 '<span class="rp-name">', escapeHtml(msg.name or def.label), '</span>',
                                 '<span class="rp-text">', escapeHtml(msg.text), '</span>',
                                 '</div>',
