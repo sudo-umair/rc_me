@@ -52,32 +52,36 @@ local function defaultAvatar(discordId)
     return ('https://cdn.discordapp.com/embed/avatars/%d.png'):format(idx)
 end
 
--- Resolve the player's Discord display name + avatar URL, caching the result
--- for the rest of their session. cb(profile|nil) — may be called asynchronously.
+-- Resolve the player's Discord display name + avatar URL, caching successful
+-- lookups for the rest of their session. cb(profile|nil) — may be called
+-- asynchronously. Failures are NOT cached, so a transient API error only
+-- affects the current message.
 local function fetchDiscordProfile(src, cb)
-    if discordCache[src] ~= nil then
-        return cb(discordCache[src] or nil)
+    if discordCache[src] then
+        return cb(discordCache[src])
+    end
+
+    if Config.DiscordBotToken == '' then
+        print('[rc_me] WARNING: Config.DiscordBotToken is not set — /me will show character names instead of Discord profiles')
+        return cb(nil)
     end
 
     local identifier = GetPlayerIdentifierByType(src, 'discord')
-    if not identifier or Config.DiscordBotToken == '' then
-        discordCache[src] = false
+    if not identifier then
+        print(('[rc_me] player %s has no Discord identifier (Discord not running when they connected?)'):format(src))
         return cb(nil)
     end
     local discordId = identifier:gsub('discord:', '')
 
     PerformHttpRequest(('https://discord.com/api/v10/users/%s'):format(discordId), function(status, body)
         if status ~= 200 or not body then
-            if Config.Debug then
-                print(('[rc_me] Discord lookup for %s failed (HTTP %s)'):format(src, status))
-            end
-            discordCache[src] = false
+            print(('[rc_me] Discord lookup for player %s failed (HTTP %s) — check that the bot token is valid'):format(src, status))
             return cb(nil)
         end
 
         local data = json.decode(body)
         if not data then
-            discordCache[src] = false
+            print(('[rc_me] Discord lookup for player %s returned invalid JSON'):format(src))
             return cb(nil)
         end
 
