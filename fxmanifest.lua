@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 
 name 'rc_me'
-description 'ESX roleplay /me /try — concurrent, stackable 3D text bubbles with server-side proximity'
+description 'ESX roleplay /me — concurrent, stackable 3D text bubbles with Discord name/avatar and server-side proximity'
 author 'sudo-umair'
 version '1.0.0'
 

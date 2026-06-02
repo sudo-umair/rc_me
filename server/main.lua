@@ -1,6 +1,7 @@
 local ESX = exports['es_extended']:getSharedObject()
 
-local lastUsed = {}   -- [src] = game timer of last command
+local lastUsed = {}       -- [src] = game timer of last command
+local discordCache = {}   -- [src] = { name = ..., avatar = ... } | false (lookup failed / no Discord)
 
 -----------------------------------------------------------------------------
 -- Helpers
@@ -38,6 +39,61 @@ local function jobAllowed(src, jobs)
         if name == allowed then return true end
     end
     return false
+end
+
+-----------------------------------------------------------------------------
+-- Discord profile
+-----------------------------------------------------------------------------
+
+-- Discord CDN default avatar for users without a custom one.
+local function defaultAvatar(discordId)
+    local id = tonumber(discordId)
+    local idx = id and math.floor(id / 4194304) % 6 or 0   -- (snowflake >> 22) % 6
+    return ('https://cdn.discordapp.com/embed/avatars/%d.png'):format(idx)
+end
+
+-- Resolve the player's Discord display name + avatar URL, caching the result
+-- for the rest of their session. cb(profile|nil) — may be called asynchronously.
+local function fetchDiscordProfile(src, cb)
+    if discordCache[src] ~= nil then
+        return cb(discordCache[src] or nil)
+    end
+
+    local identifier = GetPlayerIdentifierByType(src, 'discord')
+    if not identifier or Config.DiscordBotToken == '' then
+        discordCache[src] = false
+        return cb(nil)
+    end
+    local discordId = identifier:gsub('discord:', '')
+
+    PerformHttpRequest(('https://discord.com/api/v10/users/%s'):format(discordId), function(status, body)
+        if status ~= 200 or not body then
+            if Config.Debug then
+                print(('[rc_me] Discord lookup for %s failed (HTTP %s)'):format(src, status))
+            end
+            discordCache[src] = false
+            return cb(nil)
+        end
+
+        local data = json.decode(body)
+        if not data then
+            discordCache[src] = false
+            return cb(nil)
+        end
+
+        local avatar
+        if data.avatar then
+            avatar = ('https://cdn.discordapp.com/avatars/%s/%s.png?size=64'):format(discordId, data.avatar)
+        else
+            avatar = defaultAvatar(discordId)
+        end
+
+        discordCache[src] = {
+            name   = data.global_name or data.username,
+            avatar = avatar,
+        }
+        cb(discordCache[src])
+    end, 'GET', '', { ['Authorization'] = 'Bot ' .. Config.DiscordBotToken })
 end
 
 -- Send the message out. We broadcast to all players and let each client filter
@@ -78,22 +134,28 @@ local function handleCommand(def, src, args)
     end
     text = truncate(text, Config.MaxLength)
 
-    -- /try outcome (server-authoritative)
-    local success = nil
-    if def.isTry then
-        success = math.random(1, 100) <= Config.TrySuccessChance
-    end
-
     -- command succeeded — consume the cooldown
     if Config.Cooldown > 0 then
         lastUsed[src] = GetGameTimer()
     end
 
-    broadcastNearby(src, {
-        type    = def.type,
-        text    = text,
-        success = success,
-    })
+    fetchDiscordProfile(src, function(profile)
+        -- fall back to the character name when Discord info is unavailable
+        local name
+        if profile then
+            name = profile.name
+        else
+            local xPlayer = ESX.GetPlayerFromId(src)
+            name = xPlayer and xPlayer.getName() or GetPlayerName(src)
+        end
+
+        broadcastNearby(src, {
+            type   = def.type,
+            text   = text,
+            name   = name,
+            avatar = profile and profile.avatar or nil,
+        })
+    end)
 end
 
 CreateThread(function()
@@ -107,4 +169,5 @@ end)
 
 AddEventHandler('playerDropped', function()
     lastUsed[source] = nil
+    discordCache[source] = nil
 end)

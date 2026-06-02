@@ -34,22 +34,23 @@ Config.OffsetY = 0.0
 Config.OffsetZ = 1.10   -- height above the ped's root
 
 -----------------------------------------------------------------------------
--- /try outcome — the roll is performed server-side (authoritative)
+-- Discord — bubbles show the sender's Discord name and avatar.
+-- Requires a Discord bot token (the bot does not need to share a guild with
+-- the player). Players without a linked Discord — or if no token is set —
+-- fall back to their character name and the command icon.
 -----------------------------------------------------------------------------
 
-Config.TrySuccessChance = 50          -- percent chance of success (0-100)
-Config.TrySuccessText   = 'succeeds'
-Config.TryFailText      = 'fails'
+Config.DiscordBotToken = ''   -- e.g. 'MTA4...your bot token...'
 
 -----------------------------------------------------------------------------
 -- Commands
 -- type       : internal id, also used as the NUI css modifier (rp-<type>)
 -- command    : the chat command players type (without the slash)
--- label      : short tag shown in the bubble
+-- label      : fallback tag shown if the sender has no name available
 -- help       : description shown in the chat autocomplete suggestion
--- icon       : Font Awesome 5 icon name (without the "fa-" prefix)
+-- icon       : Font Awesome 5 icon name (without the "fa-" prefix); shown
+--              when the sender has no Discord avatar
 -- accent     : accent colour (border + label + icon)
--- isTry      : if true, appends a server-rolled success/fail outcome
 -- jobs       : if set, only these ESX jobs may use the command (nil = everyone)
 -----------------------------------------------------------------------------
 
@@ -61,14 +62,5 @@ Config.Commands = {
         help    = 'Describe an action your character performs',
         icon    = 'comment-dots',
         accent  = '#e0a93b',
-    },
-    {
-        type    = 'try',
-        command = 'try',
-        label   = 'TRY',
-        help    = 'Attempt an action — the server rolls success or failure',
-        icon    = 'dice',
-        accent  = '#cb73e6',
-        isTry   = true,
     },
 }

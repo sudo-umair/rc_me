@@ -4,7 +4,7 @@ for _, def in ipairs(Config.Commands) do
     CMD[def.type] = def
 end
 
-local active = {}        -- [id] = { sender, type, text, success, expires }
+local active = {}        -- [id] = { sender, type, text, name, avatar, expires }
 local order = {}         -- ordered list of active ids (oldest first)
 local idCounter = 0
 local threadRunning = false
@@ -108,18 +108,22 @@ local function buildHtml()
                         if onScreen then
                             sy = resolveOverlap(placed, sx, sy)
 
-                            local text = escapeHtml(msg.text)
-                            if msg.success ~= nil then
-                                local outcome = msg.success and Config.TrySuccessText or Config.TryFailText
-                                local cls = msg.success and 'rp-ok' or 'rp-bad'
-                                text = ('tries to %s and <span class="%s">%s</span>'):format(text, cls, outcome)
+                            -- Discord avatar when available, otherwise the command icon
+                            local head
+                            if msg.avatar then
+                                head = table.concat({ '<img class="rp-avatar" src="', msg.avatar, '">' })
+                            else
+                                head = table.concat({ '<span class="rp-icon"><i class="fas fa-', def.icon, '"></i></span>' })
                             end
+
                             parts[#parts + 1] = table.concat({
                                 '<div class="rp-anchor" style="left:', sx * 100, '%;top:', sy * 100, '%;">',
                                 '<div class="rp-bubble rp-', msg.type, '">',
-                                '<span class="rp-icon"><i class="fas fa-', def.icon, '"></i></span>',
-                                '<span class="rp-label">', def.label, '</span>',
-                                '<span class="rp-text">', text, '</span>',
+                                head,
+                                '<div class="rp-body">',
+                                '<span class="rp-name">', escapeHtml(msg.name or def.label), '</span>',
+                                '<span class="rp-text">', escapeHtml(msg.text), '</span>',
+                                '</div>',
                                 '</div></div>',
                             })
                         end
@@ -211,7 +215,8 @@ RegisterNetEvent('rc_me:show', function(sender, payload)
         sender  = sender,
         type    = payload.type,
         text    = payload.text or '',
-        success = payload.success,
+        name    = payload.name,
+        avatar  = payload.avatar,
         expires = GetGameTimer() + Config.Duration,
     }
     order[#order + 1] = idCounter
