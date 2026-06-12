@@ -1,5 +1,3 @@
-local ESX = exports['es_extended']:getSharedObject()
-
 local lastUsed = {}       -- [src] = game timer of last command
 local discordCache = {}   -- [src] = { name = ..., avatar = ... } | false (lookup failed / no Discord)
 
@@ -32,9 +30,8 @@ end
 -- True if the player is allowed to use a command with the given job whitelist.
 local function jobAllowed(src, jobs)
     if not jobs or #jobs == 0 then return true end
-    local xPlayer = ESX.GetPlayerFromId(src)
-    if not xPlayer then return false end
-    local name = xPlayer.getJob().name
+    local name = Bridge.GetJob(src)
+    if not name then return false end
     for _, allowed in ipairs(jobs) do
         if name == allowed then return true end
     end
@@ -149,8 +146,7 @@ local function handleCommand(def, src, args)
         if profile then
             name = profile.name
         else
-            local xPlayer = ESX.GetPlayerFromId(src)
-            name = xPlayer and xPlayer.getName() or GetPlayerName(src)
+            name = Bridge.GetCharacterName(src) or GetPlayerName(src)
         end
 
         broadcastNearby(src, {

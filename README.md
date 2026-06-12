@@ -1,6 +1,6 @@
 # rc_me
 
-Roleplay floating-text command for **ESX** — `/me` — rendered as a clean glass NUI bubble
+Roleplay floating-text command for **ESX & QBCore** — `/me` — rendered as a clean glass NUI bubble
 projected above the player in 3D world space, showing the sender's **Discord name and avatar**.
 
 Built as an improved rewrite of the classic `3dme` script.
@@ -28,7 +28,7 @@ Built as an improved rewrite of the classic `3dme` script.
 
 ## Dependencies
 
-- `es_extended`
+- `es_extended` **or** `qb-core` (auto-detected; set `Config.Framework` to force one)
 - `ox_lib`
 - OneSync (Infinity) enabled — required for server-side proximity.
 - A **Discord bot token** for the name/avatar lookup (see below).
@@ -36,14 +36,14 @@ Built as an improved rewrite of the classic `3dme` script.
 ## Installation
 
 1. Drop the `rc_me` folder into your `resources`.
-2. Add `ensure rc_me` to your `server.cfg` (after `es_extended` and `ox_lib`).
+2. Add `ensure rc_me` to your `server.cfg` (after your framework and `ox_lib`).
 3. Create a Discord application/bot at <https://discord.com/developers/applications>, copy its
    bot token and paste it into `Config.DiscordBotToken` in `config.lua`. The bot does **not**
    need to be invited to your guild — it is only used to look up public user profiles.
 4. Adjust the rest of `config.lua` to taste.
 
 > Players without a linked Discord identifier (or if no bot token is configured) fall back to
-> their ESX character name and the command icon instead of an avatar.
+> their RP character name and the command icon instead of an avatar.
 
 ## Configuration
 

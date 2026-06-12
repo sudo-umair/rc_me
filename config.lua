@@ -4,6 +4,7 @@ Config = {}
 -- General
 -----------------------------------------------------------------------------
 
+Config.Framework    = 'auto' -- 'auto' | 'esx' | 'qb' — which framework to bind to ('auto' detects whichever is running)
 Config.Debug        = false  -- print diagnostics to server & client (F8) consoles
 Config.MaxLength    = 112    -- max characters allowed in a single line
 Config.Duration     = 8000   -- how long (ms) a bubble stays on screen
@@ -51,7 +52,7 @@ Config.DiscordBotToken = ''   -- e.g. 'MTA4...your bot token...'
 -- icon       : Font Awesome 5 icon name (without the "fa-" prefix); shown
 --              when the sender has no Discord avatar
 -- accent     : accent colour (border + label + icon)
--- jobs       : if set, only these ESX jobs may use the command (nil = everyone)
+-- jobs       : if set, only these framework jobs may use the command (nil = everyone)
 -----------------------------------------------------------------------------
 
 Config.Commands = {
